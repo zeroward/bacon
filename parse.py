@@ -1,12 +1,19 @@
 #/usr/bin/env python
 
-from scapy.all import (rdpcap, Dot11, Dot11Beacon, sniff)
+from scapy.all import rdpcap
+import json
+import ast
 
+dict_file="dictionary.txt"
+with open(dict_file, 'r') as file:
+    temp=file.read()
+    try:
+        list_dict=ast.literal_eval(temp)
+    except:
+        list_dict={}
 ap_list=[]
 file=input("Enter a path to the PCAP of interest\n")
 pcap=rdpcap(file)
-
-list_dict={}
 
 for packet in pcap:
     if packet.type == 0 and packet.subtype ==8:
@@ -19,7 +26,9 @@ for packet in pcap:
                     id_list.append(frame.ID)
                 except:
                     continue
-            #print(packet.info)
-            #print(id_list)
-            list_dict[str(id_list)]=packet.info
-print(list_dict)
+            try:
+                print(list_dict[str(id_list)])
+            except:
+                list_dict[str(id_list)]=packet.info
+with open(dict_file, 'w') as file:
+    file.write(str(list_dict))
