@@ -1,0 +1,7 @@
+['_source']['layers']['frame']['frame.cap_len']   -- May be of interest
+
+
+New thought:
+
+  looking at the sequence of 'wlan.tag.number' from a specific device I
+  believe we may be able to figure out information about the device.  
