@@ -5,7 +5,7 @@ import json
 import ast
 
 #Importing dictionary for comparison
-dict_file="dictionary.txt"
+dict_file=".dictionary"
 with open(dict_file, 'r') as file:
     temp=file.read()
     try:
