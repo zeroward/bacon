@@ -6,6 +6,6 @@ The basic idea (currently) is to compare the sequence of frame tags to know sequ
 This project will be very dependant on creating a vast dictionary of known firmware versions. 
 
 
-# ISSUES
+# issues
 
 Currently every SSID that is know is in a dictionary. This is very ram intensive. A better solution may be posible.
