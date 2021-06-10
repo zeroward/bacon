@@ -29,6 +29,13 @@ for packet in pcap:
             try:
                 print(list_dict[str(id_list)])
             except:
-                list_dict[str(id_list)]=packet.info
+                #list_dict[str(id_list)]=packet.info
+                print("Unable to match firmware for ",str(packet.info))
+                print("Do you know the firmware for",str(packet.info),"? yes/no" )
+                known=input()
+                if known == 'yes':
+                    version=input("Please enter firmware version\n")
+                    list_dict[str(id_list)]=version
+
 with open(dict_file, 'w') as file:
     file.write(str(list_dict))
