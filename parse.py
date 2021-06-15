@@ -3,6 +3,7 @@
 from scapy.all import rdpcap
 import json
 import ast
+import sys
 
 #Importing dictionary for comparison
 dict_file=".dictionary"
@@ -21,7 +22,8 @@ pcap=rdpcap(file)
 for packet in pcap:
     if packet.type == 0 and packet.subtype ==8: #If packet is beacon
         if packet.info not in ap_list:          #If SSID has not been parsed
-            ap_list.append(packet.info)         #Add SSID to list
+            ssid=packet.info
+            ap_list.append(ssid)                #Add SSID to list
             id_list=[]
             for i in range(0,20):               #Iterate through layers. Layers are dynamic but I can't figure out how to get a length of them.
                 try:
@@ -30,7 +32,8 @@ for packet in pcap:
                 except:
                     continue
             try:
-                print(list_dict[str(id_list)])  #Print firmware version if tag sequence is in dictionary
+                print("SSID:",ssid.decode("utf-8"))
+                print("Possible Firmware Version:",list_dict[str(id_list)])  #Print firmware version if tag sequence is in dictionary
             except:                             #Tries to get firmware version from user to add to dictionary
                 print("Unable to match firmware for ",str(packet.info))
                 print("Do you know the firmware for",str(packet.info),"? yes/no" )
