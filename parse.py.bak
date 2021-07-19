@@ -4,20 +4,15 @@ from scapy.all import rdpcap, sniff
 import json, ast, sys, argparse
 
 ap_list=[]
-prompt="no"
 
 def main():
-    global prompt
     #argv=sys.argv
     parser=argparse.ArgumentParser(description="Fingerprinting access points without an active connection to them.")
     parser.add_argument("-f", "--file", dest="file", help="A PCAP file of interest")
     parser.add_argument("-t", "--target", help="A target SSID to look for")
-    parser.add_argument("-s", "--sniff", help="Sniff live traffic with argument to specify interface")
-    #parser.add_argument("-i", "--iface", help="(For sniffing) What interface to sniff on")
-    parser.add_argument("-u", "--update", action='store_true', help="Update values of the dictionary")
+    parser.add_argument("-s", "--sniff", help="Specify interface to sniff live traffic")
+    parser.add_argument("-i", "--iface", help="(For sniffing) What interface to sniff on")
     args = parser.parse_args()
-    if args.update:
-        prompt="yes"
     if args.target:
         if args.file:
             file=args.file
@@ -58,24 +53,19 @@ def parse(pcap):
                 try:
                     print("\nSSID:" + ssid.decode("utf-8") + "\n")
                     print("Possible Firmware Version:",list_dict[str(id_list)])  #Print firmware version if tag sequence is in dictionary
-                    if prompt=="yes":
-                        print("\nWould you like to change the firmware version listed? [yes/no]\n")
-                        change=input()
-                        if change.lower() == 'yes':
-                            print("\nEnter the new firmware version\nSpecify a range of firmware versions here\n")
-                            fw_version=input()
-                            list_dict[str(id_list)]=fw_version
+                    print("\nWould you like to change the firmware version listed? [yes/no]\n")
+                    change=input()
+                    if change.lower() == 'yes':
+                        print("\nEnter the new firmware version\nSpecify a range of firmware versions here\n")
+                        fw_version=input()
+                        list_dict[str(id_list)]=fw_version
                 except:                             #Tries to get firmware version from user to add to dictionary
-                    if prompt=="yes":
-                        print("\nUnable to match firmware for",(packet.info.decode("utf-8")))
-                        print("\nDo you know the firmware for " + (packet.info.decode("utf-8")) + "? [yes/no]\n" )
-                        known=input()
-                        if known.lower() == 'yes':
-                            version=input("Please enter firmware version\n")
-                            list_dict[str(id_list)]=version
-                    else:
-                        print("\nUnable to match firmware for",(packet.info.decode("utf-8")))
-
+                    print("\nUnable to match firmware for",(packet.info.decode("utf-8")))
+                    print(f"\nDo you know the firmware for " + (packet.info.decode("utf-8")) + "? [yes/no]\n" )
+                    known=input()
+                    if known.lower() == 'yes':
+                        version=input("Please enter firmware version\n")
+                        list_dict[str(id_list)]=version
 
     with open(dict_file, 'w') as file:
         file.write(str(list_dict))
