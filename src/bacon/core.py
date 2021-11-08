@@ -17,6 +17,16 @@ class Bacon:
         self.prompt = False
 
     def find_beacon(self, packet):
+        """
+        Parse rdpcap packet for beacon frames
+
+        Parameters:
+            packet (scapy pcap packet): Packet contained in scapy pcap
+
+        Returns:
+            id_list (arr): List of IDs
+            ssid (str): SSID of system
+        """
         ssid = None
         id_list = []
         if packet.type == 0 and packet.subtype == 8:  # If packet is beacon
@@ -31,8 +41,8 @@ class Bacon:
                     except AttributeError:
                         continue
                     except Exception as e:
-                        self.log.info("Unhandled Exception")
-                        self.log.info(e)
+                        self.log.error("Unhandled Exception")
+                        self.log.error(e)
                         id_list = None
                         ssid = None
         else:
@@ -41,6 +51,15 @@ class Bacon:
         return ssid, id_list
 
     def parse_pcap(self, pcap):
+        """
+        Parse rdpcap packet for beacon frames
+
+        Parameters:
+            pcap (scapy pcap): Packet contained in scapy pcap
+
+        Returns:
+            None
+        """
         for packet in pcap:
             ssid, id_list = self.find_beacon(packet)
             if ssid is None or id_list is None:
@@ -55,25 +74,44 @@ class Bacon:
                 #self.log.info(e)
                 self.log.info(f"Unable to match firmware for: {(packet.info.decode('utf-8'))}")
             except Exception as e:
-                self.log.info("Unhandled Exception")
-                self.log.info(e)
+                self.log.error("Unhandled Exception")
+                self.log.error(e)
+            return None
 
     def load_dictionary(self):
+        """
+        Load beacon => firmware version relation dictionary
+
+        Returns:
+            None
+        """
         with open(self.dict_file, 'r') as f:
             data = f.read()
             try:
                 self.list_dict=ast.literal_eval(data)
                 self.log.info(f"Loaded dictionary with: {len(self.list_dict)} Keys")
             except Exception as e:
-                self.log.info(e)
+                self.log.error(e)
+        return None
 
     def update_dictionary(self):
-        #TODO
+        #TODO: Add ability to update dictionary. Maybe make this its own script?
+        pass
+
+    def sniff_traffic(self):
+        #TODO: Add ability to sniff and parse traffic.
         pass
 
     def run(self):
+        """
+        Run bacon finger printer
+
+        Returns:
+            None
+        """
         self.log.info("Loading Dictionary")
         self.load_dictionary()
         pcap = rdpcap(self.file)
         self.parse_pcap(pcap)
+        return None
 
