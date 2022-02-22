@@ -34,7 +34,7 @@ class Bacon:
                 ssid = packet.info
                 self.ap_list.append(ssid)  # Add SSID to list
                 id_list = []
-                for i in range(0,20):  # Iterate through layers. Layers are dynamic but I can't figure out how to get a length of them.
+                for i in range(0, 20):  # Iterate through layers. Layers are dynamic but I can't figure out how to get a length of them.
                     try:
                         frame = packet.getlayer(i)
                         id_list.append(frame.ID)  # Gets tag number and adds to list
@@ -51,6 +51,11 @@ class Bacon:
         return ssid, id_list
 
     def parse_pcap(self, pcap):
+        for packet in pcap:
+            self.parse_packets(packet)
+
+
+    def parse_packets(self, packet):
         """
         Parse rdpcap packet for beacon frames
 
@@ -60,23 +65,22 @@ class Bacon:
         Returns:
             None
         """
-        for packet in pcap:
-            ssid, id_list = self.find_beacon(packet)
-            if ssid is None or id_list is None:
-                continue
-            try:
-                ssid = ssid.decode('utf-8')
-                # Jank fix for unadvertised/unknown SSIDs
-                if b"\x00\x00\x00\x00" in ssid.encode():
-                    ssid = "UNK"
-                fw_version = self.search_dictionary(id_list)
-                self.log.info(f"Possible Firmware Version(s) for {ssid}:\n {fw_version}")
-            except KeyError:  # Tries to get firmware version from user to add to dictionary
-                #self.log.info(e)
-                self.log.info(f"Unable to match firmware for: {(packet.info.decode('utf-8'))}")
-            except Exception as e:
-                self.log.error("Unhandled Exception")
-                self.log.error(e)
+        ssid, id_list = self.find_beacon(packet)
+        if ssid is None or id_list is None:
+            return None
+        try:
+            ssid = ssid.decode('utf-8')
+            # Jank fix for unadvertised/unknown SSIDs
+            if b"\x00\x00\x00\x00" in ssid.encode():
+                ssid = "UNK"
+            fw_version = self.search_dictionary(id_list)
+            self.log.info(f"Possible Firmware Version(s) for {ssid}:\n {fw_version}")
+        except KeyError:  # Tries to get firmware version from user to add to dictionary
+            #self.log.info(e)
+            self.log.info(f"Unable to match firmware for: {(packet.info.decode('utf-8'))}")
+        except Exception as e:
+            self.log.error("Unhandled Exception")
+            self.log.error(e)
         return None
 
     def load_dictionary(self):
@@ -106,7 +110,7 @@ class Bacon:
 
     def sniff_traffic(self):
         #TODO: Add ability to sniff and parse traffic.
-        pass
+        sniff(iface=self.interface, prn=self.parse_packets)
 
     def run(self):
         """
@@ -117,7 +121,12 @@ class Bacon:
         """
         self.log.info("Loading Dictionary")
         self.load_dictionary()
-        pcap = rdpcap(self.file)
-        self.parse_pcap(pcap)
+        if self.file and not self.interface:
+            pcap = rdpcap(self.file)
+            self.parse_pcap(pcap)
+        elif self.interface and not self.file:
+            self.sniff_traffic()
+        else:
+            return 0
         return None
 
