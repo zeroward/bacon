@@ -117,7 +117,7 @@ class Bacon:
                 f.write(capture)
         except KeyboardInterrupt:
             print("Tearing down session")
-            with open(f"{datetime.datetime.now().strftime('%m/%d/%Y-%H:%M:%S')}.pcap") as f:
+            with open(f"{datetime.datetime.now().strftime('%m/%d/%Y-%H:%M:%S')}.pcap", "wb") as f:
                 f.write(capture)
 
     def run(self):
