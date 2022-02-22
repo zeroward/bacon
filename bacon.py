@@ -23,5 +23,5 @@ if __name__ == "__main__":
     ch.setFormatter(log_format)
     log.addHandler(ch)
     print("Bacon Finger Printer")
-    bacon = Bacon(args.file, args.target, args.sniff, args.iface, args.update, log)
+    bacon = Bacon(args.file, args.target, args.sniff, args.interface, args.update, log)
     bacon.run()

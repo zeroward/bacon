@@ -4,7 +4,7 @@ from scapy.all import rdpcap, sniff
 
 class Bacon:
 
-    def __init__(self, file, target, sniff, interface, update, log, dictionary="src/bacon/files/ap_dict.ast"):
+    def __init__(self, file, target, sniff, interface, update, log, dictionary="src/bacon/files/ap_dict.json"):
         self.file = file
         self.target = target
         self.sniff = sniff
@@ -69,14 +69,15 @@ class Bacon:
                 # Jank fix for unadvertised/unknown SSIDs
                 if b"\x00\x00\x00\x00" in ssid.encode():
                     ssid = "UNK"
-                self.log.info(f"Possible Firmware Version(s) for {ssid}:\n {self.list_dict[str(id_list)]}")
+                fw_version = self.search_dictionary(id_list)
+                self.log.info(f"Possible Firmware Version(s) for {ssid}:\n {fw_version}")
             except KeyError:  # Tries to get firmware version from user to add to dictionary
                 #self.log.info(e)
                 self.log.info(f"Unable to match firmware for: {(packet.info.decode('utf-8'))}")
             except Exception as e:
                 self.log.error("Unhandled Exception")
                 self.log.error(e)
-            return None
+        return None
 
     def load_dictionary(self):
         """
@@ -88,11 +89,16 @@ class Bacon:
         with open(self.dict_file, 'r') as f:
             data = f.read()
             try:
-                self.list_dict=ast.literal_eval(data)
+                self.list_dict=json.loads(data)
                 self.log.info(f"Loaded dictionary with: {len(self.list_dict)} Keys")
             except Exception as e:
                 self.log.error(e)
         return None
+
+    def search_dictionary(self, id_list):
+        for version, frame in self.list_dict.items():
+            if frame == id_list:
+                return version
 
     def update_dictionary(self):
         #TODO: Add ability to update dictionary. Maybe make this its own script?
