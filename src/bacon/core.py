@@ -110,15 +110,17 @@ class Bacon:
 
     def sniff_traffic(self):
         try:
+            self.log.info("Capturing")
             #capture = sniff(iface=self.interface, prn=self.parse_packets)
             t = AsyncSniffer(iface=self.interface, prn=self.parse_packets)
+            t.start()
             t.join()
         except KeyboardInterrupt:
-            t.stop()    
-            print("Tearing down session")
+            t.stop()
+            self.log.info("Tearing down session")
             filename = f"{datetime.datetime.now().strftime('%m-%d-%Y-%H:%M:%S')}.pcap"
             wrpcap(filename, t.results)
-            print(f"Packet capture saved as {filename}")
+            self.log.info(f"Packet capture saved as {filename}")
 
 
     def run(self):
