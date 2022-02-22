@@ -110,15 +110,10 @@ class Bacon:
 
     def sniff_traffic(self):
         #TODO: Add ability to sniff and parse traffic.
-        try:
-            capture = sniff(iface=self.interface, prn=self.parse_packets)
-            print("Tearing down session")
-            with open(f"{datetime.datetime.now().strftime('%m/%d/%Y-%H:%M:%S')}.pcap") as f:
-                f.write(capture)
-        except KeyboardInterrupt:
-            print("Tearing down session")
-            with open(f"{datetime.datetime.now().strftime('%m/%d/%Y-%H:%M:%S')}.pcap", "wb") as f:
-                f.write(capture)
+        capture = sniff(iface=self.interface, prn=self.parse_packets)
+        print("Tearing down session")
+        with open(f"{datetime.datetime.now().strftime('%m/%d/%Y-%H:%M:%S')}.pcap", "wb") as f:
+            f.write(capture)
 
     def run(self):
         """
