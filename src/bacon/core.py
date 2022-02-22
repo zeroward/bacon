@@ -1,4 +1,4 @@
-import ast
+import datetime
 import json
 from scapy.all import rdpcap, sniff
 
@@ -110,7 +110,12 @@ class Bacon:
 
     def sniff_traffic(self):
         #TODO: Add ability to sniff and parse traffic.
-        sniff(iface=self.interface, prn=self.parse_packets)
+        try:
+            capture = sniff(iface=self.interface, prn=self.parse_packets)
+        except KeyboardInterrupt:
+            print("Tearing down session")
+            with open(f"{datetime.datetime.now().strftime('%m/%d/%Y-%H:%M:%S')}.pcap") as f:
+                f.write(capture)
 
     def run(self):
         """
